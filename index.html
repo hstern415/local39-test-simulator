@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Local 39 iPhone Practice</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#eef2f7;color:#111827;font-size:17px}
+#app{max-width:720px;margin:0 auto;padding:14px;padding-bottom:40px}
+.card{background:white;border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.10)}
+h1{font-size:28px;text-align:center;margin:8px 0 6px}h2{font-size:22px;margin:14px 0 10px}
+p{line-height:1.4}.muted{color:#64748b;font-size:15px}.center{text-align:center}
+button{font:inherit;width:100%;border:0;border-radius:18px;padding:16px;margin:7px 0;background:white}
+.primary{background:#2563eb;color:white;font-weight:800}.green{background:#16a34a;color:white;font-weight:800}.light{border:1px solid #cbd5e1}
+.option{border:2px solid #cbd5e1;text-align:left}.option.active{border-color:#2563eb;background:#eff6ff}
+.choice{border:2px solid #cbd5e1;text-align:left;display:flex;gap:10px;align-items:flex-start;line-height:1.25}
+.choice.sel{border-color:#2563eb;background:#eff6ff}.choice.good{border-color:#16a34a;background:#f0fdf4}.choice.bad{border-color:#dc2626;background:#fef2f2}
+.timerrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.pill{background:#f8fafc;border:1px solid #e2e8f0;border-radius:15px;padding:10px;text-align:center;font-size:15px}
+.progress{height:12px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin:12px 0}.bar{height:100%;background:#2563eb;width:0}
+.q{font-size:21px;font-weight:800;line-height:1.32;margin:18px 0}.note{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:12px;margin:12px 0}
+.explain{background:#fef9c3;border:1px solid #fde68a;border-radius:16px;padding:13px;margin:12px 0}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:10px}.full{grid-column:1/3}
+svg{width:100%;display:block;border:1px solid #e2e8f0;border-radius:16px;background:white;margin:12px 0}
+.result{border:1px solid #cbd5e1;border-radius:16px;padding:12px;margin:10px 0;background:white}.miss{background:#fffbeb;border-color:#fde68a}
+@media(max-width:380px){body{font-size:16px}.q{font-size:19px}h1{font-size:25px}.timerrow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var QUESTIONS=[
+{b:"Bucket 1 - Math",t:"Tax",q:"A supply order costs $250. Sales tax is 8%. What is the total cost including tax?",c:["$258","$265","$270","$275"],a:2,e:"8% of $250 is $20. Add tax: $250 + $20 = $270.",m:"Tax means add. Discount means subtract."},
+{b:"Bucket 1 - Math",t:"Fractions",q:"Simplify the improper fraction: 38/7",c:["6 3/7","5 3/7","5 1/7","5 4/7"],a:1,e:"38 ÷ 7 = 5 remainder 3, so 38/7 = 5 3/7.",m:"Divide top by bottom. Remainder becomes the fraction top."},
+{b:"Bucket 1 - Math",t:"Percent",q:"30% of what number is 27?",c:["8.1","80","90","100"],a:2,e:"27 ÷ 0.30 = 90.",m:"Percent of what number = divide by the decimal percent."},
+{b:"Bucket 1 - Math",t:"Discount",q:"A tool costs $90 and is 30% off. What is the sale price?",c:["$27","$60","$63","$117"],a:2,e:"30% of $90 is $27. $90 - $27 = $63.",m:"Discount means subtract."},
+{b:"Bucket 1 - Math",t:"Tank Percent",q:"A tank holds 240 gallons. If 25% is drained, how many gallons remain?",c:["60","120","180","200"],a:2,e:"25% drained means 75% remains. 75% of 240 = 180.",m:"Drained means find what remains."},
+{b:"Bucket 2 - Measurement",t:"Conversion",q:"Which is longer?",c:["1 yard","1 meter","They are equal","Not enough information"],a:1,e:"1 meter is about 39 inches. 1 yard is 36 inches.",m:"Meter is a little longer than a yard."},
+{b:"Bucket 2 - Measurement",t:"Metric",q:"Which is closest to 1 centimeter?",c:["10 millimeters","1 millimeter","2.54 millimeters","100 millimeters"],a:0,e:"1 centimeter = 10 millimeters.",m:"Centi to milli: move decimal 1 place right."},
+{b:"Bucket 2 - Geometry",t:"Angles",q:"A triangle has angles of 45° and 65°. What is the missing angle?",c:["60°","70°","80°","90°"],a:1,e:"180 - 45 - 65 = 70.",m:"Triangle angles add up to 180°."},
+{b:"Bucket 2 - Geometry",t:"Shapes",q:"A shape has 6 sides. What is it called?",c:["Pentagon","Hexagon","Octagon","Parallelogram"],a:1,e:"A hexagon has 6 sides.",m:"Hex = 6."},
+{b:"Bucket 2 - Measurement",t:"Liters",q:"1 liter is equal to how many milliliters?",c:["10 mL","100 mL","1,000 mL","10,000 mL"],a:2,e:"1 liter = 1,000 milliliters.",m:"Milli means tiny: 1,000 mL = 1 L."},
+{b:"Bucket 3 - Mechanical",t:"Gears",d:"gears",q:"The middle gear is rotating clockwise. The two outside gears will rotate:",c:["In the same direction, clockwise","In the same direction, counterclockwise","Opposite directions","Not enough information"],a:1,e:"Each outside gear touches the middle gear, so each rotates opposite the middle gear: counterclockwise.",m:"Touching gears spin opposite directions."},
+{b:"Bucket 3 - Mechanical",t:"Leverage",d:"wrench",q:"If more leverage and torque are needed, which tool is better?",c:["Tool #1","Tool #2","No difference","Not enough information"],a:1,e:"Tool #2 is longer. Longer handle = more leverage.",m:"Longer handle wins."},
+{b:"Bucket 3 - Mechanical",t:"Ruler",d:"ruler",q:"Which measurement most accurately notes the missing value on the ruler?",c:["1.5 inches","1.120 inches","1.375 inches","1.25 inches"],a:2,e:"The arrow is at 1 and 3/8 inches. 3/8 = 0.375, so 1.375.",m:"3/8 = 0.375."},
+{b:"Bucket 3 - Mechanical",t:"Threads",q:"If a bolt is reverse threaded, which is true?",c:["It is more likely to seize","Special tools are always needed","It must be turned clockwise to loosen","It is made with special materials"],a:2,e:"Reverse-threaded bolts loosen clockwise.",m:"Reverse thread = reverse of lefty loosey."},
+{b:"Bucket 3 - Mechanical",t:"Pulleys",q:"A fixed pulley mainly helps by:",c:["Changing the direction of force","Doubling the load","Stopping the rope","Removing friction completely"],a:0,e:"A fixed pulley changes the direction of pull.",m:"Fixed pulley = changes direction."},
+{b:"Bucket 4 - English",t:"Punctuation",q:"Choose the correctly punctuated sentence.",c:["After the inspection was complete the supervisor signed the report.","After the inspection was complete, the supervisor signed the report.","After the inspection, was complete the supervisor signed the report.","After the inspection was complete the supervisor, signed the report."],a:1,e:"Use a comma after an opening phrase.",m:"Opening phrase first? Add a comma."},
+{b:"Bucket 4 - English",t:"Run-On",q:"Choose the best correction: The pump was leaking the operator shut off the valve.",c:["The pump was leaking. The operator shut off the valve.","The pump was. Leaking the operator shut off the valve.","The pump was leaking the operator. Shut off the valve.","The pump was leaking, the operator, shut off the valve."],a:0,e:"Two complete thoughts should be split clearly.",m:"Run-on = two sentences smashed together."},
+{b:"Bucket 4 - English",t:"Reading",p:"Preventive maintenance is work done before equipment fails. It may include cleaning, lubricating, tightening loose parts, and checking for wear. Although this work takes time, it can reduce breakdowns and emergency repairs.",q:"What is the main idea of the passage?",c:["Preventive maintenance helps reduce breakdowns.","All equipment should be replaced immediately.","Cleaning is not part of maintenance.","Emergency repairs are always better."],a:0,e:"The passage explains that preventive maintenance reduces breakdowns.",m:"Answer from the passage, not opinion."},
+{b:"Bucket 4 - English",t:"Does Not Belong",q:"Which sentence does not belong with the others?",c:["The technician inspected the motor for damage.","The technician checked the electrical connections.","The technician measured the voltage across the terminals.","The technician went to the grocery store after work."],a:3,e:"The grocery store sentence is off-topic.",m:"Find the sentence that changes topic."},
+{b:"Bucket 4 - English",t:"Combining",q:"Choose the best way to combine: The worker checked the gauge. The worker recorded the reading.",c:["The worker checked the gauge recording the reading.","The worker checked the gauge, then recorded the reading.","The worker checked the gauge but recorded the reading.","The worker checked the gauge or recorded the reading."],a:1,e:"Then shows the correct order.",m:"Use then when one action follows another."}
+];
+var OPTIONS=[
+{id:"bucket1",label:"Bucket 1 - Math",count:100,filter:function(q){return q.b.indexOf("Bucket 1")===0}},
+{id:"bucket2",label:"Bucket 2 - Measurement / Geometry",count:100,filter:function(q){return q.b.indexOf("Bucket 2")===0}},
+{id:"bucket3",label:"Bucket 3 - Mechanical",count:100,filter:function(q){return q.b.indexOf("Bucket 3")===0}},
+{id:"bucket4",label:"Bucket 4 - English",count:100,filter:function(q){return q.b.indexOf("Bucket 4")===0}},
+{id:"final",label:"Final Exam - All Buckets",count:125,filter:function(q){return true}}
+];
+var S={mode:"practice",type:"final",started:false,submitted:false,current:0,selected:{},times:{},seed:1,start:0,qstart:0};
+var T=[], timer=null, app=document.getElementById("app");
+function shuffle(a){var b=a.slice(); for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)); var t=b[i]; b[i]=b[j]; b[j]=t;} return b;}
+function build(){var o=OPTIONS.filter(function(x){return x.id===S.type})[0]||OPTIONS[4]; var pool=QUESTIONS.filter(o.filter); var base=S.seed%2?pool:shuffle(pool); var out=[]; for(var i=0;i<o.count;i++){var src=base[i%base.length]; out.push(Object.assign({},src,{inst:src.id+"-"+i}))} return out;}
+function fmt(ms){var t=Math.max(0,Math.floor(ms/1000)); return Math.floor(t/60)+":"+String(t%60).padStart(2,"0")}
+function ans(i){return i===undefined?"Blank":String.fromCharCode(65+i)}
+function flush(){if(!S.started||S.submitted)return; var e=Date.now()-S.qstart; S.times[S.current]=(S.times[S.current]||0)+e; S.qstart=Date.now();}
+function startTest(){T=build(); S.started=true; S.submitted=false; S.current=0; S.selected={}; S.times={}; S.start=Date.now(); S.qstart=S.start; clearInterval(timer); timer=setInterval(render,1000); render();}
+function reset(){clearInterval(timer); S.started=false; S.submitted=false; S.current=0; S.selected={}; S.times={}; S.seed++; render();}
+function choose(i){S.selected[S.current]=i; render();}
+function go(i){flush(); S.current=Math.max(0,Math.min(i,T.length-1)); render();}
+function submit(){flush(); S.submitted=true; clearInterval(timer); render();}
+function gear(cx,cy,r,label){var pts=[]; for(var i=0;i<24;i++){var a=Math.PI*2*i/24, rr=i%2?r-7:r; pts.push((cx+rr*Math.cos(a))+","+(cy+rr*Math.sin(a)))} return '<g><polygon points="'+pts.join(" ")+'" fill="none" stroke="black" stroke-width="2"/><circle cx="'+cx+'" cy="'+cy+'" r="'+(r*.32)+'" fill="none" stroke="black" stroke-width="2"/><text x="'+(cx-27)+'" y="'+(cy+r+22)+'" font-size="13">'+label+'</text></g>'}
+function diagram(d){
+ if(d==="gears")return '<svg viewBox="0 0 420 170"><text x="140" y="24" font-size="16" font-weight="700">Middle gear clockwise</text>'+gear(105,100,34,"Outside")+gear(210,82,46,"Middle")+gear(315,100,34,"Outside")+'<path d="M180 38 C215 10,262 28,264 68" fill="none" stroke="black" stroke-width="3"/><polygon points="264,68 255,54 276,57" fill="black"/></svg>';
+ if(d==="wrench")return '<svg viewBox="0 0 430 160"><text x="78" y="38" font-size="16" font-weight="700">Tool #1</text><rect x="45" y="70" width="115" height="16" rx="8" fill="#d9d9d9" stroke="black"/><circle cx="42" cy="78" r="13" fill="none" stroke="black" stroke-width="3"/><circle cx="164" cy="78" r="13" fill="none" stroke="black" stroke-width="3"/><text x="86" y="120" font-size="16">6&quot;</text><text x="270" y="38" font-size="16" font-weight="700">Tool #2</text><rect x="220" y="70" width="165" height="16" rx="8" fill="#d9d9d9" stroke="black"/><circle cx="217" cy="78" r="13" fill="none" stroke="black" stroke-width="3"/><circle cx="389" cy="78" r="13" fill="none" stroke="black" stroke-width="3"/><text x="296" y="120" font-size="16">12&quot;</text></svg>';
+ if(d==="ruler"){var ticks=""; for(var i=0;i<33;i++){var x=40+360/32*i, len=i%16===0?36:i%8===0?28:i%4===0?22:i%2===0?16:10; ticks+='<line x1="'+x+'" y1="45" x2="'+x+'" y2="'+(45+len)+'" stroke="black"/>'} return '<svg viewBox="0 0 460 145"><rect x="40" y="45" width="360" height="50" fill="#f2d36b" stroke="black"/>'+ticks+'<text x="218" y="122" font-size="20">1</text><text x="395" y="122" font-size="20">2</text><line x1="287.5" y1="18" x2="287.5" y2="45" stroke="red" stroke-width="3"/><polygon points="287.5,45 279,32 296,32" fill="red"/><text x="270" y="16" fill="red" font-size="16" font-weight="700">???</text></svg>'}
+ return "";
+}
+function renderStart(){app.innerHTML='<div class="card"><h1>Local 39 Testing Simulator</h1><p class="center muted">iPhone-friendly timed practice</p><div class="grid grid2"><button class="option '+(S.mode==="practice"?"active":"")+'" onclick="S.mode=\'practice\';render()"><b>Practice Mode</b><br><span class="muted">Explanations after each answer.</span></button><button class="option '+(S.mode==="test"?"active":"")+'" onclick="S.mode=\'test\';render()"><b>Test Mode</b><br><span class="muted">No explanations until submit.</span></button></div><h2>Choose test type</h2><div class="grid">'+OPTIONS.map(function(o){return '<button class="option '+(S.type===o.id?"active":"")+'" onclick="S.type=\''+o.id+'\';render()"><b>'+o.label+'</b><br><span class="muted">'+o.count+' questions</span></button>'}).join("")+'</div><div class="note"><b>Included:</b> total timer, per-question timer, average time, score by bucket, and missed-question study list.</div><button class="btn primary" onclick="startTest()">Start Test</button></div>'}
+function renderQuestion(){var q=T[S.current], answered=Object.keys(S.selected).length, total=Date.now()-S.start, curr=(S.times[S.current]||0)+(Date.now()-S.qstart), show=S.mode==="practice"&&S.selected[S.current]!==undefined; app.innerHTML='<div class="card"><div class="topbar"><div><div class="muted">'+q.b+' • '+q.t+'</div><h2>Question '+(S.current+1)+' of '+T.length+'</h2></div></div><div class="timerrow"><div class="pill">Total<br><b>'+fmt(total)+'</b></div><div class="pill">This Q<br><b>'+fmt(curr)+'</b></div></div><div class="progress"><div class="bar" style="width:'+((S.current+1)/T.length*100)+'%"></div></div><div class="muted">Answered: '+answered+'/'+T.length+'</div>'+(q.p?'<div class="passage"><b>Passage:</b> '+q.p+'</div>':"")+diagram(q.d)+'<div class="q">'+q.q+'</div>'+q.c.map(function(c,i){var sel=S.selected[S.current]===i, cls="choice"; if(show&&i===q.a)cls+=" good"; else if(show&&sel&&i!==q.a)cls+=" bad"; else if(sel)cls+=" sel"; return '<button class="'+cls+'" onclick="choose('+i+')"><b>'+String.fromCharCode(65+i)+'.</b><span>'+c+'</span></button>'}).join("")+(show?'<div class="explain"><b>Explanation</b><br>'+q.e+'<br><br><b>Memory tip:</b> '+q.m+'</div>':"")+'<div class="nav"><button class="btn light" '+(S.current===0?"disabled":"")+' onclick="go('+(S.current-1)+')">Previous</button>'+(S.current<T.length-1?'<button class="btn primary" onclick="go('+(S.current+1)+')">Next</button>':'<button class="btn green" onclick="submit()">Submit</button>')+'</div></div>'}
+function renderResults(){var total=Object.values(S.times).reduce(function(a,b){return a+b},0), score=T.reduce(function(s,q,i){return s+(S.selected[i]===q.a?1:0)},0), missed=T.map(function(q,i){return Object.assign({},q,{index:i,sel:S.selected[i],tm:S.times[i]||0})}).filter(function(x){return x.sel!==x.a}), buckets={}; T.forEach(function(q,i){if(!buckets[q.b])buckets[q.b]={t:0,c:0}; buckets[q.b].t++; if(S.selected[i]===q.a)buckets[q.b].c++}); app.innerHTML='<div class="card"><h1>Test Complete</h1><p class="center" style="font-size:22px">Score: <b>'+score+'/'+T.length+'</b> ('+Math.round(score/T.length*100)+'%)</p><div class="grid grid3"><div class="pill">Total<br><b>'+fmt(total)+'</b></div><div class="pill">Avg / Q<br><b>'+fmt(total/T.length)+'</b></div><div class="pill">Missed<br><b>'+missed.length+'</b></div></div><h2>Score by bucket</h2><div class="grid grid2">'+Object.keys(buckets).map(function(b){var s=buckets[b]; return '<div class="pill"><b>'+b+'</b><br>'+s.c+'/'+s.t+' correct ('+Math.round(s.c/s.t*100)+'%)</div>'}).join("")+'</div><h2>Missed-question study list</h2><div class="note">Use this list to create a weak-area test later. Also review questions that took too long.</div>'+(missed.slice(0,35).map(function(x){return '<div class="result missed"><b>Q'+(x.index+1)+': '+x.t+'</b><br>Your answer: '+ans(x.sel)+' | Correct: '+ans(x.a)+' | Time: '+fmt(x.tm)+'<br><span class="muted">Memory tip: '+x.m+'</span></div>'}).join("")||"<p>No missed questions. Great job.</p>")+'<button class="btn primary" onclick="reset()">Restart with shuffled questions</button></div>'}
+function render(){if(!S.started)return renderStart(); if(S.submitted)return renderResults(); return renderQuestion()}render();
+</script>
+</body></html>
